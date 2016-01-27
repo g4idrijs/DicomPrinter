@@ -1,2 +1,2 @@
 # DicomPrinter
-Print images from ultrasound skanner
+Print images from ultrasound scanner

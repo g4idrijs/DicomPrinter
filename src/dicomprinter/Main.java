@@ -92,11 +92,13 @@ public class Main extends Application {
         }
         report.save();
 
-      /*  try {
-            wait(3000);
-        } catch (InterruptedException e) {
-            System.err.println(" wait(3000) - InterruptedException ");
-        }*/
+        //задержка чтобы успел записаться pdf на диск
+        try {
+            Thread.sleep(3000);
+        } catch(InterruptedException e) {
+            System.err.println("Waiting ..... ");
+            Thread.currentThread().interrupt();
+        }
 
         SimplePrinter printer = new SimplePrinter("priPrinter");
         printer.print(Report.DEFAULT_REPORT_NAME);
