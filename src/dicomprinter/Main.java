@@ -2,12 +2,14 @@ package dicomprinter;
 
 import dicomprinter.imagebox.ImageBox;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,6 +77,8 @@ public class Main extends Application {
 
     //Run from MainWindowController on press Print
     public void createReport(){
+
+
         Boolean listEmpty = true;
         for (ImageBox box:listOfImageBoxes) if (box.checked()){ listEmpty = false; break; }
         if (listEmpty) {
@@ -107,16 +111,21 @@ public class Main extends Application {
         //задержка чтобы успел записаться pdf на диск
         try {
             Thread.sleep(3000);
-        } catch(InterruptedException e) {
             System.err.println("Waiting ..... ");
+        } catch(InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
+        // Bad code Java Printing API
         //SimplePrinter printer = new SimplePrinter("priPrinter");
-        SimplePrinter printer = new SimplePrinter(""); //default printer if name empty
-        File pdf = new File(Report.DEFAULT_REPORT_NAME); // TODO: это костыль для имени файла
-        System.err.println(pdf.getPath());
-        printer.print(pdf.getPath());
+        //SimplePrinter printer = new SimplePrinter(""); //default printer if name empty
+        //File pdf = new File(Report.DEFAULT_REPORT_NAME); // TODO: это костыль для имени файла
+        //System.err.println(pdf.getPath());
+        //printer.print(pdf.getPath());
+
+        //Platform.runLater(() -> Report.print(Report.DEFAULT_REPORT_NAME));
+        Report.print(Report.DEFAULT_REPORT_NAME);
+
     }
 
     public static void main(String[] args) {

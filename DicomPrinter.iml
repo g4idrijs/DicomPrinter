@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="pixelmed" level="project" />
     <orderEntry type="library" name="itextpdf-5.5.8-sources" level="project" />
+    <orderEntry type="library" name="pdfbox-app-2.0.0-RC3" level="project" />
   </component>
 </module>

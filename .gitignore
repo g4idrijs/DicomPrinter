@@ -18,4 +18,8 @@ hs_err_pid*
 *.pdf
 *.ttf
 *.db
+*.rtf
+*.htm
+*.html
+
 

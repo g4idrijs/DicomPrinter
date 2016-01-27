@@ -1,11 +1,15 @@
 package dicomprinter;
 
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.*;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.printing.PDFPageable;
 
 
 /**
@@ -70,6 +74,23 @@ public class Report {
 
     public void save(){
         document.close();
+    }
+
+    //test print function - PDFBOX
+    public static void print(String fileName){
+        PDDocument docPDF = null;
+        try {
+            docPDF = PDDocument.load (new File(fileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setPageable(new PDFPageable(docPDF));
+        try {
+            job.print();
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
     }
 
     private void insertText(String text, float x, float y, int fontSize){
