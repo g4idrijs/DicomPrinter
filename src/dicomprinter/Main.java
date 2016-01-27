@@ -4,9 +4,11 @@ import dicomprinter.imagebox.ImageBox;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -73,6 +75,16 @@ public class Main extends Application {
 
     //Run from MainWindowController on press Print
     public void createReport(){
+        Boolean listEmpty = true;
+        for (ImageBox box:listOfImageBoxes) if (box.checked()){ listEmpty = false; break; }
+        if (listEmpty) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Важное сообщение");
+            alert.setHeaderText("Не выделены изображения для печати");
+            alert.setContentText("Выделите необходимые изображения и нажмите Print");
+            alert.showAndWait();
+            return;
+        }
         Report report = new Report(Report.DEFAULT_REPORT_NAME);
         report.top("Dicom printer. ==== Верхний колонтитул ====");
         report.bottom("Dicom printer. ==== Нижний колонтитул ====");
@@ -100,8 +112,11 @@ public class Main extends Application {
             Thread.currentThread().interrupt();
         }
 
-        SimplePrinter printer = new SimplePrinter("priPrinter");
-        printer.print(Report.DEFAULT_REPORT_NAME);
+        //SimplePrinter printer = new SimplePrinter("priPrinter");
+        SimplePrinter printer = new SimplePrinter(""); //default printer if name empty
+        File pdf = new File(Report.DEFAULT_REPORT_NAME); // TODO: это костыль для имени файла
+        System.err.println(pdf.getPath());
+        printer.print(pdf.getPath());
     }
 
     public static void main(String[] args) {

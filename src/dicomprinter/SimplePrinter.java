@@ -16,7 +16,8 @@ public class SimplePrinter {
     private String printerName = "priPrinter";
     private PrintService printService = null;
     private PrintRequestAttributeSet pras = null;
-    private DocFlavor flavor = DocFlavor.INPUT_STREAM.JPEG;
+    //private DocFlavor flavor = DocFlavor.INPUT_STREAM.JPEG;
+    private DocFlavor flavor = DocFlavor.INPUT_STREAM.PDF;
     private FileInputStream fis = null;
     private Doc doc = null;
 
@@ -53,18 +54,19 @@ public class SimplePrinter {
 
     private void CreatePrinterAttributes(){
         pras = new HashPrintRequestAttributeSet();
-        pras.add(new Copies(1));
-        pras.add(new PrinterResolution(600,600,PrinterResolution.DPI));
-        pras.add(PrintQuality.HIGH);
+        //pras.add(new Copies(1));
+        //pras.add(new PrinterResolution(600,600,PrinterResolution.DPI));
+        //pras.add(PrintQuality.HIGH);
         //pras.add(new MediaPrintableArea(0, 0, 100, 100, MediaPrintableArea.MM));
-        pras.add(MediaTray.TOP);
+        //pras.add(MediaTray.TOP);
         //pras.add(new PrintQuality());
         //pras.add(new MediaSize(210, 297, Size2DSyntax.MM, MediaSizeName.ISO_A5));
     }
 
     private void CreateDocumentAndDocumentAttributes(){
         DocAttributeSet das = new HashDocAttributeSet();
-        doc = new SimpleDoc(fis, flavor, das);
+        //doc = new SimpleDoc(fis, flavor, das);
+        doc = new SimpleDoc(fis, DocFlavor.INPUT_STREAM.AUTOSENSE,null);
     }
 
     public static void main(String[] args){
@@ -72,7 +74,4 @@ public class SimplePrinter {
         SimplePrinter p = new SimplePrinter("");
         p.print("D:\\tmp\\pict.jpg");
     }
-
-
-
 }
