@@ -51,7 +51,7 @@ public class MainWindowController {
     public void setChangeWidthListener(){
         scrollPane.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
                     imageGrid.getChildren().clear();
-                    for (ImageBox box:mainClass.listOfImageBoxes) box.show(scrollPane.getWidth());
+                    for (ImageBox box:mainClass.listOfImageBoxes) box.showOnResize(scrollPane.getWidth());
                 }
         );
     }

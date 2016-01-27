@@ -73,6 +73,15 @@ public class ImageBox {
         Platform.runLater(() -> parentGrid.add(imageBox, column, row));
     }
 
+    public void showOnResize(double containerWidth){
+        int columnsNumber = (int)(containerWidth/imageBox.getPrefWidth());
+        int column = parentList.indexOf(this)%columnsNumber;
+        int row    = parentList.indexOf(this)/columnsNumber;
+        parentGrid.add(imageBox, column, row);
+    }
+
+
+
     /** @deprecated */
     public void show(){
         int columnsNumber = (int)(parentGrid.getWidth()/imageBox.getPrefWidth());
