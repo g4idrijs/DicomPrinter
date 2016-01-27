@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="mainPane" fx:controller="dicomprinter.MainWindowController" maxHeight="-Infinity" maxWidth="680.0" minHeight="-Infinity" minWidth="680.0" prefHeight="562.0" prefWidth="680.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox alignment="CENTER_RIGHT" layoutX="138.0" layoutY="346.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <children>
+            <Label text="DICOM Image Receiver слушает порт 104">
+               <HBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </HBox.margin>
+            </Label>
+            <Button  fx:id="printButton" layoutX="138.0" layoutY="346.0" mnemonicParsing="false" onAction="#goPrint" text="Печать" />
+            <Button fx:id="clearButton" layoutX="200.0" layoutY="346.0" mnemonicParsing="false" onAction="#goClear" text="Очистить" />
+            <Button fx:id="exitButton" layoutX="262.0" layoutY="346.0" mnemonicParsing="false" onAction="#goExit" text="Выход" />
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </HBox>
+      <ScrollPane fx:id="scrollPane" prefHeight="200.0" prefWidth="200.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <content>
+            <GridPane fx:id="imageGrid" gridLinesVisible="true">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="330.0" prefWidth="330.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="330.0" prefWidth="330.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="322.0" prefHeight="322.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+            </GridPane>
+         </content>
+      </ScrollPane>
+   </children>
+</AnchorPane>
