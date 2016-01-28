@@ -18,5 +18,10 @@ public class ImageBoxController {
     CheckBox checkBox;
 
     @FXML
+    public void textareaKeyTyped(){
+        checkBox.setSelected(true);
+    }
+
+    @FXML
     public void initialize(){}
 }

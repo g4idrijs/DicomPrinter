@@ -21,6 +21,9 @@ public class Report {
 
     public static final String DEFAULT_REPORT_NAME = "report.pdf";
 
+    private static final int TOP_FONT_SIZE = 12;
+    private static final int BOTTOM_FONT_SIZE = 8;
+    private static final int CAPTION_FONT_SIZE = 14;
     // Windows system font
     //private static final String FONT_PATH = "C:\\Windows\\Fonts\\Arial.ttf";
     // Font in Project Folder
@@ -28,23 +31,24 @@ public class Report {
     private static final float IMAGES_IN_ROW = 2f;
     private static final float IMAGES_IN_COLUMN = 3f;
     private static final int IMAGES_ON_PAGE = (int)(IMAGES_IN_ROW * IMAGES_IN_COLUMN);
-    private static final float leftBorderWidth = 50f;
-    private static final float borderWidth = 20f;
-    private static final float imageDistance = 10f;
-    private static final float topHeight = 20f;
-    private static final float captionHeight = 12f;
-    private static final float pageWidth = PageSize.A4.getWidth() - leftBorderWidth - borderWidth;
-    private static final float pageHeight = PageSize.A4.getHeight() - borderWidth - borderWidth;
-    private static final float imageWidth = pageWidth/ IMAGES_IN_ROW - imageDistance;
-    private static final float imageHeight = pageHeight / IMAGES_IN_COLUMN;
+    private static final float LEFT_BORDER_WIDTH = 50f;
+    private static final float BORDER_WIDTH = 20f;
+    private static final float IMAGE_DISTANCE = 10f;
+    private static final float TOP_HEIGHT = 20f;
+    private static final float CAPTION_HEIGHT = 12f;
+    private static final float PAGE_WIDTH = PageSize.A4.getWidth() - LEFT_BORDER_WIDTH - BORDER_WIDTH;
+    private static final float PAGE_HEIGHT = PageSize.A4.getHeight() - BORDER_WIDTH - BORDER_WIDTH;
+    private static final float IMAGE_WIDTH = PAGE_WIDTH / IMAGES_IN_ROW - IMAGE_DISTANCE;
+    private static final float IMAGE_HEIGHT = PAGE_HEIGHT / IMAGES_IN_COLUMN;
 
-    private BaseFont bf;
+    private BaseFont baseFont;
     private final Document document;
     private PdfWriter writer;
 
     public Report(String filename) {
         try {
-            bf = BaseFont.createFont(FONT_PATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            //IMPORTANT!! - cyrillic font creating
+            baseFont = BaseFont.createFont(FONT_PATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         } catch (DocumentException e) {
             System.err.println("ERROR: Font creation failed.");
             e.printStackTrace();
@@ -93,13 +97,14 @@ public class Report {
         }
     }
 
+    // low level text function
     private void insertText(String text, float x, float y, int fontSize){
         PdfContentByte over = writer.getDirectContent();
         over.saveState();
         over.beginText();
         over.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
         over.setLineWidth(0.1f);
-        over.setFontAndSize(bf, fontSize);
+        over.setFontAndSize(baseFont, fontSize);
         over.moveText(x, y);
         over.showText(text);
         over.endText();
@@ -107,14 +112,14 @@ public class Report {
     }
 
     public void top (String top){
-        float x = leftBorderWidth;
-        float y = PageSize.A4.getHeight() - borderWidth - 12;
-        insertText(top, x, y, 12);
+        float x = LEFT_BORDER_WIDTH;
+        float y = PageSize.A4.getHeight() - BORDER_WIDTH - TOP_FONT_SIZE;
+        insertText(top, x, y, TOP_FONT_SIZE);
     }
 
     public void bottom (String bottom){
         //noinspection SuspiciousNameCombination
-        insertText(bottom, leftBorderWidth, borderWidth, 10);
+        insertText(bottom, LEFT_BORDER_WIDTH, BORDER_WIDTH, BOTTOM_FONT_SIZE);
     }
 
     public void newpage(){
@@ -133,7 +138,7 @@ public class Report {
         Image image = null;
         try {
             image = Image.getInstance(imageFileName);
-            image.scaleToFit(imageWidth, imageHeight);
+            image.scaleToFit(IMAGE_WIDTH, IMAGE_HEIGHT);
         } catch (BadElementException e) {
             System.err.println("ERROR: Bad image in file " + imageFileName);
             e.printStackTrace();
@@ -144,8 +149,8 @@ public class Report {
             System.exit(-1);
         }
 
-        float x = column * (pageWidth/ IMAGES_IN_ROW) + leftBorderWidth ;
-        float y = PageSize.A4.getHeight() - borderWidth - row * imageHeight - image.getScaledHeight() - topHeight;
+        float x = column * (PAGE_WIDTH / IMAGES_IN_ROW) + LEFT_BORDER_WIDTH;
+        float y = PageSize.A4.getHeight() - BORDER_WIDTH - row * IMAGE_HEIGHT - image.getScaledHeight() - TOP_HEIGHT;
         image.setAbsolutePosition(x, y);
 
         try {
@@ -155,9 +160,10 @@ public class Report {
         }
 
         //TODO: Перенос длинного текста на новую строку
-        if (caption != null) insertText(caption, x , y - captionHeight, 14);
+        if (caption != null) insertText(caption, x , y - CAPTION_HEIGHT, CAPTION_FONT_SIZE);
     }
 
+    //TODO: just for debug
     public void sixJpegImagesFromFolder(String folderName){
         File[] files = new File(folderName).listFiles((dir, name) -> {return name.toLowerCase().endsWith(".jpeg");});
         for (int i = 0; (i < 6) && (i < files.length) ; i++)

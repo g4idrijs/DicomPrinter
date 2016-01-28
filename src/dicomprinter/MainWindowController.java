@@ -26,9 +26,8 @@ public class MainWindowController {
 
     @FXML
     public void goPrint(){
-        System.err.println("go printer");
+        System.err.println("Printing ...");
         mainClass.createReport();
-        //TODO: Печатать на принтере
     }
 
     @FXML

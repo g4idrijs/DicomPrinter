@@ -12,7 +12,6 @@ import java.util.Properties;
 public class DicomProperties {
     /** Имя конфигурационного файла по умолчанию */
     static final String DEFAULT_CONFIG_FILE_NAME = "uzi_utilites.config";
-
     /** Имя конфигурационного файла */
     private String CONFIG_NAME = "";
     /** Имя поставщика DICOM-объектов (в настройках УЗИ-сканера) */

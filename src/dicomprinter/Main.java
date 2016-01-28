@@ -2,15 +2,12 @@ package dicomprinter;
 
 import dicomprinter.imagebox.ImageBox;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -20,7 +17,6 @@ public class Main extends Application {
     public MainWindowController mainWindowController;
 
     ArrayList<ImageBox> listOfImageBoxes = new ArrayList<>();
-
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -33,22 +29,18 @@ public class Main extends Application {
 
         DicomImageConverter converter = new DicomImageConverter(this, properties);
 
-        // Disabled then run from Idea on linux (need root)
-        //DicomImageReceiver.Go(properties, converter);
+        // Disable then run from Idea on linux (need root)
+        DicomImageReceiver.Go(properties, converter);
 
-        //debug
-
-        addImageBox("pict1.jpeg");
-        addImageBox("pict.jpg");
-        addImageBox("pict1.jpeg");
-        addImageBox("pict.jpg");
+        //code for debugging
+        /*
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
-        addImageBox("pict.jpg");
         addImageBox("pict1.jpeg");
-        addImageBox("pict.jpg");
         addImageBox("pict1.jpeg");
-
+        addImageBox("pict1.jpeg");
+        addImageBox("pict1.jpeg");
+        */
     }
 
     public void initMainWindow(){
@@ -75,10 +67,10 @@ public class Main extends Application {
         imageBox.show(mainWindowController.scrollPane.getWidth());
     }
 
-    //Run from MainWindowController on press Print
+    /**
+     *     Run from MainWindowController on press Print
+     */
     public void createReport(){
-
-
         Boolean listEmpty = true;
         for (ImageBox box:listOfImageBoxes) if (box.checked()){ listEmpty = false; break; }
         if (listEmpty) {
@@ -90,7 +82,7 @@ public class Main extends Application {
             return;
         }
         Report report = new Report(Report.DEFAULT_REPORT_NAME);
-        report.top("Dicom printer. ==== Верхний колонтитул ====");
+        report.top("Dicom printer. ==== Верхний колонтитул ===="); //TODO: Настройка колонтитулов (из properties)
         report.bottom("Dicom printer. ==== Нижний колонтитул ====");
         int imageCounter = 0;
         for (ImageBox box:listOfImageBoxes){
@@ -104,7 +96,6 @@ public class Main extends Application {
                 report.image(box.imageFileName(), row, column, box.caption());
                 imageCounter++;
             }
-
         }
         report.save();
 
@@ -116,16 +107,7 @@ public class Main extends Application {
             Thread.currentThread().interrupt();
         }
 
-        // Bad code Java Printing API
-        //SimplePrinter printer = new SimplePrinter("priPrinter");
-        //SimplePrinter printer = new SimplePrinter(""); //default printer if name empty
-        //File pdf = new File(Report.DEFAULT_REPORT_NAME); // TODO: это костыль для имени файла
-        //System.err.println(pdf.getPath());
-        //printer.print(pdf.getPath());
-
-        //Platform.runLater(() -> Report.print(Report.DEFAULT_REPORT_NAME));
         Report.print(Report.DEFAULT_REPORT_NAME);
-
     }
 
     public static void main(String[] args) {
