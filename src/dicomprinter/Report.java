@@ -31,7 +31,8 @@ public class Report {
     private static final int CAPTION_FONT_SIZE = 14;
 
     //private static final String FONT_PATH = "C:\\Windows\\Fonts\\Arial.ttf"; // Windows system font
-    private static final String FONT_PATH = "Arial.ttf"; //Font file in project folder
+    //private static final String FONT_PATH = "Arial.ttf"; //Font file in project folder
+    private static final String FONT_PATH = "/org/apache/pdfbox/resources/ttf/LiberationSans-Regular.ttf"; //embedded (pdfbox2)
     private static final float IMAGES_IN_ROW = 2f;
     private static final float IMAGES_IN_COLUMN = 3f;
     private static final int   IMAGES_ON_PAGE = (int)(IMAGES_IN_ROW * IMAGES_IN_COLUMN);
@@ -56,7 +57,7 @@ public class Report {
         document.addPage(page);
 
         try {
-            font = PDType0Font.load(document, new File(FONT_PATH));
+            font = PDType0Font.load(document, PDFont.class.getResourceAsStream(FONT_PATH));
         } catch (IOException e) {
             System.err.println("ERROR!: Can not load font from " + FONT_PATH);
             e.printStackTrace();
@@ -195,7 +196,7 @@ public class Report {
             e.printStackTrace();
         }
         try {
-            contentStream = new PDPageContentStream(document, page);
+            contentStream.restoreGraphicsState();
         } catch (IOException e) {
             e.printStackTrace();
         }

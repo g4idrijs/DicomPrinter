@@ -30,17 +30,21 @@ public class Main extends Application {
         DicomImageConverter converter = new DicomImageConverter(this, properties);
 
         // Disable then run from Idea on linux (need root)
-        DicomImageReceiver.Go(properties, converter);
+        //DicomImageReceiver.Go(properties, converter);
 
         //code for debugging
-        /*
+        /**/
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
-        */
+        addImageBox("pict1.jpeg");
+        addImageBox("pict1.jpeg");
+        addImageBox("pict1.jpeg");
+        addImageBox("pict1.jpeg");
+
     }
 
     public void initMainWindow(){
