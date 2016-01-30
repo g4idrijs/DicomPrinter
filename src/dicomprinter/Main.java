@@ -81,33 +81,11 @@ public class Main extends Application {
             alert.showAndWait();
             return;
         }
-        Report report = new Report(Report.DEFAULT_REPORT_NAME);
-        report.top("Dicom printer. ==== Верхний колонтитул ===="); //TODO: Настройка колонтитулов (из properties)
-        report.bottom("Dicom printer. ==== Нижний колонтитул ====");
-        int imageCounter = 0;
-        for (ImageBox box:listOfImageBoxes){
-            if (box.checked()){
-                if (imageCounter == report.imagesOnPage()){
-                    report.newpage();
-                    imageCounter = 0;
-                }
-                int column = imageCounter % report.columnsNumber();
-                int row    = imageCounter / report.columnsNumber();
-                report.image(box.imageFileName(), row, column, box.caption());
-                imageCounter++;
-            }
-        }
-        report.save();
 
-        //задержка чтобы успел записаться pdf на диск
-        try {
-            Thread.sleep(3000);
-            System.err.println("Waiting ..... ");
-        } catch(InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        Report.print(Report.DEFAULT_REPORT_NAME);
+        Report report = new Report();
+        report.create(listOfImageBoxes);
+        report.print(); //TODO: Выбор принтера
+        report.save(Report.DEFAULT_REPORT_NAME); //TODO: Выбор имени для сохранения
     }
 
     public static void main(String[] args) {

@@ -1,86 +1,206 @@
 package dicomprinter;
 
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-import java.io.*;
-
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfWriter;
+import dicomprinter.imagebox.ImageBox;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.printing.PDFPageable;
 
-
-/**
- * Create multi-image PDF-report for DICOM-printer
- * Created by 1 on 14.01.2016.
- */
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.standard.PrintQuality;
+//import javax.print.attribute.standard.PrinterResolution;
+import java.awt.*;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Report {
-
     public static final String DEFAULT_REPORT_NAME = "report.pdf";
+    //TODO: Текст колонтитулов из настроек
+    private static final String BOTTOM_TEXT = "ИП Орехов Р.А., г.Талица ул.Заозерная 76, т.89226078238, лиц.№ЛО-66-01-003047 2014г.";
+    private static final String TOP_TEXT = "%NAME%, %AGE%, %DATE%, %TIME%, %MACHINE";
 
     private static final int TOP_FONT_SIZE = 12;
     private static final int BOTTOM_FONT_SIZE = 8;
     private static final int CAPTION_FONT_SIZE = 14;
-    // Windows system font
-    //private static final String FONT_PATH = "C:\\Windows\\Fonts\\Arial.ttf";
-    // Font in Project Folder
-    private static final String FONT_PATH = "Arial.ttf";
+
+    //private static final String FONT_PATH = "C:\\Windows\\Fonts\\Arial.ttf"; // Windows system font
+    private static final String FONT_PATH = "Arial.ttf"; //Font file in project folder
     private static final float IMAGES_IN_ROW = 2f;
     private static final float IMAGES_IN_COLUMN = 3f;
-    private static final int IMAGES_ON_PAGE = (int)(IMAGES_IN_ROW * IMAGES_IN_COLUMN);
+    private static final int   IMAGES_ON_PAGE = (int)(IMAGES_IN_ROW * IMAGES_IN_COLUMN);
     private static final float LEFT_BORDER_WIDTH = 50f;
     private static final float BORDER_WIDTH = 20f;
     private static final float IMAGE_DISTANCE = 10f;
     private static final float TOP_HEIGHT = 20f;
     private static final float CAPTION_HEIGHT = 12f;
-    private static final float PAGE_WIDTH = PageSize.A4.getWidth() - LEFT_BORDER_WIDTH - BORDER_WIDTH;
-    private static final float PAGE_HEIGHT = PageSize.A4.getHeight() - BORDER_WIDTH - BORDER_WIDTH;
+    private static final float PAGE_WIDTH = PDRectangle.A4.getWidth() - LEFT_BORDER_WIDTH - BORDER_WIDTH;
+    private static final float PAGE_HEIGHT = PDRectangle.A4.getHeight() - BORDER_WIDTH - BORDER_WIDTH;
     private static final float IMAGE_WIDTH = PAGE_WIDTH / IMAGES_IN_ROW - IMAGE_DISTANCE;
     private static final float IMAGE_HEIGHT = PAGE_HEIGHT / IMAGES_IN_COLUMN;
 
-    private BaseFont baseFont;
-    private final Document document;
-    private PdfWriter writer;
+    private PDDocument document;
+    private PDFont font;
+    private PDPage page;
+    private PDPageContentStream contentStream;
 
-    public Report(String filename) {
+    public Report() {
+        document = new PDDocument();
+        page = new PDPage(PDRectangle.A4);
+        document.addPage(page);
+
         try {
-            //IMPORTANT!! - cyrillic font creating
-            baseFont = BaseFont.createFont(FONT_PATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-        } catch (DocumentException e) {
-            System.err.println("ERROR: Font creation failed.");
-            e.printStackTrace();
-            System.exit(-1);
+            font = PDType0Font.load(document, new File(FONT_PATH));
         } catch (IOException e) {
-            System.err.println("ERROR: Can not open font from file.");
+            System.err.println("ERROR!: Can not load font from " + FONT_PATH);
             e.printStackTrace();
-            System.exit(-1);
         }
-
-        document = new Document(PageSize.A4);
 
         try {
-            writer = PdfWriter.getInstance(document, new FileOutputStream(filename));
-        } catch (DocumentException e) {
-            System.err.println("ERROR: PDF-writer creation failed.");
+            contentStream = new PDPageContentStream(document, page);
+        } catch (IOException e) {
+            System.err.println("ERROR!: Failed creating content stream.");
             e.printStackTrace();
-            System.exit(-1);
-        } catch (FileNotFoundException e) {
-            System.err.println("ERROR: Can not open file " + filename);
-            e.printStackTrace();
-            System.exit(-1);
         }
 
-        document.open();
+        top(TOP_TEXT); //TODO: Настройка колонтитулов (из properties)
+        bottom(BOTTOM_TEXT);
     }
 
-    public void save(){
-        document.close();
+    public void create(ArrayList<ImageBox> list){
+        int imageCounter = 0;
+        for (ImageBox box:list){
+            if (box.checked()){
+                if (imageCounter == imagesOnPage()){
+                    newpage();
+                    imageCounter = 0;
+                }
+                int column = imageCounter % columnsNumber();
+                int row    = imageCounter / columnsNumber();
+                image(box.imageFileName(), row, column, box.caption());
+                imageCounter++;
+            }
+        }
     }
 
-    //test print function - PDFBOX
+    public int columnsNumber(){
+        return (int) IMAGES_IN_ROW;
+    }
+
+    public int imagesOnPage(){
+        return IMAGES_ON_PAGE;
+    }
+
+    private void insertText(String text, float x, float y, int fontSize){
+        try {
+            contentStream.beginText();
+            contentStream.setFont(font, fontSize);
+            Color color = Color.black;
+            contentStream.setNonStrokingColor(color);
+            contentStream.newLineAtOffset(x, y);
+            contentStream.showText(text);
+            contentStream.endText();
+        } catch (IOException e) {
+            System.err.println("ERROR!: Failed text inserting");
+            e.printStackTrace();
+        }
+    }
+
+    public void top (String top){
+        float x = LEFT_BORDER_WIDTH;
+        float y = PDRectangle.A4.getHeight() - BORDER_WIDTH - TOP_FONT_SIZE;
+        insertText(top, x, y, TOP_FONT_SIZE);
+    }
+
+    public void bottom (String bottom){
+        //noinspection SuspiciousNameCombination
+        insertText(bottom, LEFT_BORDER_WIDTH, BORDER_WIDTH, BOTTOM_FONT_SIZE);
+    }
+
+    public void image(String imageFileName, int row, int column, String caption){
+        PDImageXObject image;
+        try {
+            image = PDImageXObject.createFromFile(imageFileName, document);
+
+            float scale = IMAGE_WIDTH/image.getWidth();
+            float scaleY = IMAGE_HEIGHT/image.getHeight();
+            if (scale > scaleY) scale = scaleY;
+
+            float x = column * (PAGE_WIDTH/ IMAGES_IN_ROW) + LEFT_BORDER_WIDTH ;
+            float y = PDRectangle.A4.getHeight() - BORDER_WIDTH - (row * IMAGE_HEIGHT) - (image.getHeight() * scale) - TOP_HEIGHT;
+
+            contentStream.drawImage(image, x, y, image.getWidth() * scale, image.getHeight() * scale);
+
+            //TODO: Перенос длинного текста на новую строку
+            if (caption != null) insertText(caption, x , y - CAPTION_HEIGHT, CAPTION_FONT_SIZE);
+
+        } catch (IOException e) {
+            System.err.println("ERROR!: Failed openin image from " + imageFileName);
+            e.printStackTrace();
+        }
+    }
+
+    public void newpage(){
+        try {
+            contentStream.close();
+            page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+            contentStream = new PDPageContentStream(document, page);
+        } catch (IOException e) {
+            System.err.println("ERROR!: Failed new page adding.");
+            e.printStackTrace();
+        }
+        top(TOP_TEXT); //TODO: Настройка колонтитулов (из properties)
+        bottom(BOTTOM_TEXT);
+    }
+
+
+    public void save(String filename){
+        try {
+            contentStream.close();
+            document.save(filename);
+        } catch (IOException e) {
+            System.err.println("ERROR!: Failed saving report to " + filename);
+            e.printStackTrace();
+        } finally {
+            try {
+                document.close();
+            } catch (IOException e) {
+                System.err.println("ERROR!: Failed documet closing after error.");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void print(){
+        try {
+            contentStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        PrinterJob job = PrinterJob.getPrinterJob(); //TODO: Choose printer
+        job.setPageable(new PDFPageable(document));
+        HashPrintRequestAttributeSet set = new HashPrintRequestAttributeSet();
+        //set.add(new PrinterResolution(600,600, PrinterResolution.DPI));
+        set.add(PrintQuality.HIGH);
+        try {
+            job.print(set);
+        } catch (PrinterException e) {
+            e.printStackTrace();
+        }
+        try {
+            contentStream = new PDPageContentStream(document, page);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void print(String fileName){
         PDDocument docPDF = null;
         try {
@@ -97,95 +217,12 @@ public class Report {
         }
     }
 
-    // low level text function
-    private void insertText(String text, float x, float y, int fontSize){
-        PdfContentByte over = writer.getDirectContent();
-        over.saveState();
-        over.beginText();
-        over.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
-        over.setLineWidth(0.1f);
-        over.setFontAndSize(baseFont, fontSize);
-        over.moveText(x, y);
-        over.showText(text);
-        over.endText();
-        over.restoreState();
-    }
-
-    public void top (String top){
-        float x = LEFT_BORDER_WIDTH;
-        float y = PageSize.A4.getHeight() - BORDER_WIDTH - TOP_FONT_SIZE;
-        insertText(top, x, y, TOP_FONT_SIZE);
-    }
-
-    public void bottom (String bottom){
-        //noinspection SuspiciousNameCombination
-        insertText(bottom, LEFT_BORDER_WIDTH, BORDER_WIDTH, BOTTOM_FONT_SIZE);
-    }
-
-    public void newpage(){
-        document.newPage();
-    }
-
-    public int columnsNumber(){
-        return (int) IMAGES_IN_ROW;
-    }
-
-    public int imagesOnPage(){
-        return IMAGES_ON_PAGE;
-    }
-
-    public void image(String imageFileName, int row, int column, String caption){
-        Image image = null;
-        try {
-            image = Image.getInstance(imageFileName);
-            image.scaleToFit(IMAGE_WIDTH, IMAGE_HEIGHT);
-        } catch (BadElementException e) {
-            System.err.println("ERROR: Bad image in file " + imageFileName);
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (IOException e) {
-            System.err.println("ERROR: Can not open file " + imageFileName);
-            e.printStackTrace();
-            System.exit(-1);
-        }
-
-        float x = column * (PAGE_WIDTH / IMAGES_IN_ROW) + LEFT_BORDER_WIDTH;
-        float y = PageSize.A4.getHeight() - BORDER_WIDTH - row * IMAGE_HEIGHT - image.getScaledHeight() - TOP_HEIGHT;
-        image.setAbsolutePosition(x, y);
-
-        try {
-            document.add(image);
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }
-
-        //TODO: Перенос длинного текста на новую строку
-        if (caption != null) insertText(caption, x , y - CAPTION_HEIGHT, CAPTION_FONT_SIZE);
-    }
-
-    //TODO: just for debug
-    public void sixJpegImagesFromFolder(String folderName){
-        File[] files = new File(folderName).listFiles((dir, name) -> {return name.toLowerCase().endsWith(".jpeg");});
-        for (int i = 0; (i < 6) && (i < files.length) ; i++)
-        {
-            System.err.println(files[i].getPath());
-            switch (i){
-                case 0: {image(files[i].getPath(), 0, 0, "Картинка №" + i); break;}
-                case 1: {image(files[i].getPath(), 0, 1, "Картинка №" + i); break;}
-                case 2: {image(files[i].getPath(), 1, 0, "Картинка №" + i); break;}
-                case 3: {image(files[i].getPath(), 1, 1, "Картинка №" + i); break;}
-                case 4: {image(files[i].getPath(), 2, 0, "Картинка №" + i); break;}
-                case 5: {image(files[i].getPath(), 2, 1, "Картинка №" + i); break;}
-                default:
-            }
-        }
-    }
-
     public static void main(String[] args) {
-        Report report = new Report("D:\\tmp\\sample.pdf");
-        report.sixJpegImagesFromFolder("D:\\tmp");
+        Report report = new Report();
+        report.image("pict1.jpeg", 0,0, "описание 1");
         report.newpage();
-        report.sixJpegImagesFromFolder("D:\\tmp");
-        report.save();
+        report.image("pict1.jpeg", 2,1, "описание 2");
+        report.print();
+        report.save(Report.DEFAULT_REPORT_NAME);
     }
 }
