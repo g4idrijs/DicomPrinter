@@ -20,6 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Create report for DicomPrinter, save it to disk and ptin on printer
+ */
 public class Report {
     public static final String DEFAULT_REPORT_NAME = "report.pdf";
     //TODO: Текст колонтитулов из настроек
@@ -51,6 +54,9 @@ public class Report {
     private PDPage page;
     private PDPageContentStream contentStream;
 
+    /**
+     * Constructor
+     */
     public Report() {
         document = new PDDocument();
         page = new PDPage(PDRectangle.A4);
@@ -74,6 +80,10 @@ public class Report {
         bottom(BOTTOM_TEXT);
     }
 
+    /**
+     * Create standard report
+     * @param list Array of ImageBoxes from imageGrid
+     */
     public void create(ArrayList<ImageBox> list){
         int imageCounter = 0;
         for (ImageBox box:list){
@@ -90,14 +100,29 @@ public class Report {
         }
     }
 
+    /**
+     *
+     * @return Number of columns on report page
+     */
     public int columnsNumber(){
         return (int) IMAGES_IN_ROW;
     }
 
+    /**
+     *
+     * @return Nubmber of images on report page
+     */
     public int imagesOnPage(){
         return IMAGES_ON_PAGE;
     }
 
+    /**
+     * Type text on absolute position. Private low level function
+     * @param text The text string
+     * @param x X position
+     * @param y Y position
+     * @param fontSize Size of font
+     */
     private void insertText(String text, float x, float y, int fontSize){
         try {
             contentStream.beginText();
@@ -113,17 +138,32 @@ public class Report {
         }
     }
 
+    /**
+     * Create the top string on report page
+     * @param top The top text
+     */
     public void top (String top){
         float x = LEFT_BORDER_WIDTH;
         float y = PDRectangle.A4.getHeight() - BORDER_WIDTH - TOP_FONT_SIZE;
         insertText(top, x, y, TOP_FONT_SIZE);
     }
 
+    /**
+     * Create the bottom string on report page
+     * @param bottom The bottom text
+     */
     public void bottom (String bottom){
         //noinspection SuspiciousNameCombination
         insertText(bottom, LEFT_BORDER_WIDTH, BORDER_WIDTH, BOTTOM_FONT_SIZE);
     }
 
+    /**
+     * Insert image in report table
+     * @param imageFileName Name of image file (with full path or relation path)
+     * @param row Row in report table
+     * @param column Column in report table
+     * @param caption Text description
+     */
     public void image(String imageFileName, int row, int column, String caption){
         PDImageXObject image;
         try {
@@ -147,6 +187,9 @@ public class Report {
         }
     }
 
+    /**
+     * Add new page to report
+     */
     public void newpage(){
         try {
             contentStream.close();
@@ -161,7 +204,10 @@ public class Report {
         bottom(BOTTOM_TEXT);
     }
 
-
+    /**
+     * Save report to PDF-file
+     * @param filename Name for PDF-file (extension not added)
+     */
     public void save(String filename){
         try {
             contentStream.close();
@@ -179,13 +225,17 @@ public class Report {
         }
     }
 
+    /**
+     * Print report on default printer
+     * TODO: Choose printer
+     */
     public void print(){
         try {
             contentStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        PrinterJob job = PrinterJob.getPrinterJob(); //TODO: Choose printer
+        PrinterJob job = PrinterJob.getPrinterJob();
         job.setPageable(new PDFPageable(document));
         HashPrintRequestAttributeSet set = new HashPrintRequestAttributeSet();
         //set.add(new PrinterResolution(600,600, PrinterResolution.DPI));
@@ -202,6 +252,10 @@ public class Report {
         }
     }
 
+    /**
+     * Print PDF-file from disk on default printer. Static function.
+     * @param fileName Path to PDF-file
+     */
     public static void print(String fileName){
         PDDocument docPDF = null;
         try {
