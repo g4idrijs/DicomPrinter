@@ -5,7 +5,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="mainPane" fx:controller="dicomprinter.MainWindowController" maxHeight="-Infinity" maxWidth="680.0" minHeight="-Infinity" minWidth="680.0" prefHeight="562.0" prefWidth="680.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="mainPane" maxHeight="-Infinity" maxWidth="680.0" minHeight="-Infinity" minWidth="680.0" prefHeight="562.0" prefWidth="680.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dicomprinter.MainWindowController">
    <children>
       <HBox alignment="CENTER_RIGHT" layoutX="138.0" layoutY="346.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>
@@ -14,7 +14,8 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
             </Label>
-            <Button  fx:id="printButton" layoutX="138.0" layoutY="346.0" mnemonicParsing="false" onAction="#goPrint" text="Печать" />
+            <Button fx:id="btnSelectAll" mnemonicParsing="false" onAction="#goSelectAll" text="Выделить все" />
+            <Button fx:id="printButton" layoutX="138.0" layoutY="346.0" mnemonicParsing="false" onAction="#goPrint" text="Печать" />
             <Button fx:id="clearButton" layoutX="200.0" layoutY="346.0" mnemonicParsing="false" onAction="#goClear" text="Очистить" />
             <Button fx:id="exitButton" layoutX="262.0" layoutY="346.0" mnemonicParsing="false" onAction="#goExit" text="Выход" />
          </children>
@@ -22,7 +23,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
       </HBox>
-      <ScrollPane fx:id="scrollPane" prefHeight="200.0" prefWidth="200.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <ScrollPane fx:id="scrollPane" prefHeight="200.0" prefWidth="200.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="55.0">
          <content>
             <GridPane fx:id="imageGrid" gridLinesVisible="true">
               <columnConstraints>
@@ -35,5 +36,29 @@
             </GridPane>
          </content>
       </ScrollPane>
+      <TextField fx:id="txtTopColontitul" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </TextField>
+      <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
    </children>
 </AnchorPane>

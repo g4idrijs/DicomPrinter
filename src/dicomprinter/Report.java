@@ -21,13 +21,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Create report for DicomPrinter, save it to disk and ptin on printer
+ * Create report for DicomPrinter, save it to disk and ptint on printer
  */
 public class Report {
     public static final String DEFAULT_REPORT_NAME = "report.pdf";
-    //TODO: Текст колонтитулов из настроек
-    private static final String BOTTOM_TEXT = "ИП Орехов Р.А., г.Талица ул.Заозерная 76, т.89226078238, лиц.№ЛО-66-01-003047 2014г.";
-    private static final String TOP_TEXT = "%NAME%, %AGE%, %DATE%, %TIME%, %MACHINE";
 
     private static final int TOP_FONT_SIZE = 12;
     private static final int BOTTOM_FONT_SIZE = 8;
@@ -53,6 +50,8 @@ public class Report {
     private PDFont font;
     private PDPage page;
     private PDPageContentStream contentStream;
+    private String topText;
+    private String bottomText;
 
     /**
      * Constructor
@@ -75,9 +74,6 @@ public class Report {
             System.err.println("ERROR!: Failed creating content stream.");
             e.printStackTrace();
         }
-
-        top(TOP_TEXT); //TODO: Настройка колонтитулов (из properties)
-        bottom(BOTTOM_TEXT);
     }
 
     /**
@@ -85,6 +81,8 @@ public class Report {
      * @param list Array of ImageBoxes from imageGrid
      */
     public void create(ArrayList<ImageBox> list){
+        top();
+        bottom();
         int imageCounter = 0;
         for (ImageBox box:list){
             if (box.checked()){
@@ -110,7 +108,7 @@ public class Report {
 
     /**
      *
-     * @return Nubmber of images on report page
+     * @return Number of images on report page
      */
     public int imagesOnPage(){
         return IMAGES_ON_PAGE;
@@ -140,21 +138,19 @@ public class Report {
 
     /**
      * Create the top string on report page
-     * @param top The top text
      */
-    public void top (String top){
+    public void top (){
         float x = LEFT_BORDER_WIDTH;
         float y = PDRectangle.A4.getHeight() - BORDER_WIDTH - TOP_FONT_SIZE;
-        insertText(top, x, y, TOP_FONT_SIZE);
+        insertText(topText, x, y, TOP_FONT_SIZE);
     }
 
     /**
      * Create the bottom string on report page
-     * @param bottom The bottom text
      */
-    public void bottom (String bottom){
+    public void bottom (){
         //noinspection SuspiciousNameCombination
-        insertText(bottom, LEFT_BORDER_WIDTH, BORDER_WIDTH, BOTTOM_FONT_SIZE);
+        insertText(bottomText, LEFT_BORDER_WIDTH, BORDER_WIDTH, BOTTOM_FONT_SIZE);
     }
 
     /**
@@ -200,9 +196,29 @@ public class Report {
             System.err.println("ERROR!: Failed new page adding.");
             e.printStackTrace();
         }
-        top(TOP_TEXT); //TODO: Настройка колонтитулов (из properties)
-        bottom(BOTTOM_TEXT);
+        top();
+        bottom();
     }
+
+    /**
+     *
+     * @param text Text for top colontitul
+     * TODO: Настройка колонтитулов (из properties)
+     */
+    public void setTopText(String text){
+        topText = text;
+    }
+
+    /**
+     *
+     * @param text Text for bottom colontitul
+     * TODO: Настройка колонтитулов (из properties)
+     */
+    public void setBottomText(String text){
+        bottomText = text;
+    }
+
+
 
     /**
      * Save report to PDF-file
@@ -227,7 +243,7 @@ public class Report {
 
     /**
      * Print report on default printer
-     * TODO: Choose printer
+     * TODO: Выбор принтера
      */
     public void print(){
         try {

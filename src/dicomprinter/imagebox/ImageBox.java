@@ -80,7 +80,9 @@ public class ImageBox {
         parentGrid.add(imageBox, column, row);
     }
 
-
+    public void setSelected(){
+        controller.checkBox.setSelected(true);
+    }
 
     /** @deprecated */
     public void show(){

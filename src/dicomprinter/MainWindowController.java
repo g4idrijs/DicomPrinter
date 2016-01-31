@@ -2,8 +2,10 @@ package dicomprinter;
 
 import dicomprinter.imagebox.ImageBox;
 import javafx.fxml.FXML;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
@@ -21,12 +23,20 @@ public class MainWindowController {
     ScrollPane scrollPane;
     @FXML
     AnchorPane mainPane;
+    @FXML
+    Button btnSelectAll;
+    @FXML
+    TextField txtTopColontitul;
 
     private Main mainClass;
 
     @FXML
+    public void goSelectAll(){
+        mainClass.listOfImageBoxes.forEach(ImageBox::setSelected);
+    }
+
+    @FXML
     public void goPrint(){
-        System.err.println("Printing ...");
         mainClass.createReport();
     }
 

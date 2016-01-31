@@ -9,7 +9,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class Main extends Application {
 
@@ -30,10 +33,10 @@ public class Main extends Application {
         DicomImageConverter converter = new DicomImageConverter(this, properties);
 
         // Disable then run from Idea on linux (need root)
-        //DicomImageReceiver.Go(properties, converter);
+        DicomImageReceiver.Go(properties, converter);
 
         //code for debugging
-        /**/
+        /*
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
@@ -44,7 +47,7 @@ public class Main extends Application {
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
         addImageBox("pict1.jpeg");
-
+        */
     }
 
     public void initMainWindow(){
@@ -86,7 +89,13 @@ public class Main extends Application {
             return;
         }
 
+        Date currentDate = new Date();
+        Locale local = new Locale("ru","RU");
+        DateFormat df = DateFormat.getDateTimeInstance (DateFormat.DEFAULT,DateFormat.DEFAULT,local);
+
         Report report = new Report();
+        report.setTopText(mainWindowController.txtTopColontitul.getText());
+        report.setBottomText(df.format(currentDate));
         report.create(listOfImageBoxes);
         report.print(); //TODO: Выбор принтера
         report.save(Report.DEFAULT_REPORT_NAME); //TODO: Выбор имени для сохранения
