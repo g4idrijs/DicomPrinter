@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DicomPrinter:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DicomPrinter_jar</output-path>
+    <root id="archive" name="DicomPrinter.jar">
+      <element id="module-output" name="DicomPrinter" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/pixelmed.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/pdfbox-app-2.0.0-RC3.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

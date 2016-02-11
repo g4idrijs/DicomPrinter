@@ -1,0 +1,23 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="DicomPrinter">
+    <output-path>$PROJECT_DIR$/out/artifacts/DicomPrinter</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="dicomprinter.Main" />
+        <option name="description" value="" />
+        <option name="height" value="562" />
+        <option name="htmlParamFile" value="" />
+        <option name="nativeBundle" value="exe" />
+        <option name="paramFile" value="" />
+        <option name="title" value="DicomPrinter" />
+        <option name="vendor" value="" />
+        <option name="width" value="680" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="DicomPrinter.jar">
+        <element id="module-output" name="DicomPrinter" />
+      </element>
+    </root>
+  </artifact>
+</component>
