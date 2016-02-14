@@ -23,7 +23,7 @@ import java.util.ArrayList;
 /**
  * Create report for DicomPrinter, save it to disk and ptint on printer
  */
-public class Report {
+public class Report extends PropertyUser{
     public static final String DEFAULT_REPORT_NAME = "report.pdf";
 
     private static final int TOP_FONT_SIZE = 12;
@@ -31,8 +31,8 @@ public class Report {
     private static final int CAPTION_FONT_SIZE = 14;
 
     //private static final String FONT_PATH = "C:\\Windows\\Fonts\\Arial.ttf"; // Windows system font
-    //private static final String FONT_PATH = "Arial.ttf"; //Font file in project folder
-    private static final String FONT_PATH = "/org/apache/pdfbox/resources/ttf/LiberationSans-Regular.ttf"; //embedded (pdfbox2)
+    private static final String FONT_PATH = "Arial.ttf"; //Font file in project folder
+    //private static final String FONT_PATH = "/org/apache/pdfbox/resources/ttf/LiberationSans-Regular.ttf"; //embedded (pdfbox2)
     private static final float IMAGES_IN_ROW = 2f;
     private static final float IMAGES_IN_COLUMN = 3f;
     private static final int   IMAGES_ON_PAGE = (int)(IMAGES_IN_ROW * IMAGES_IN_COLUMN);
@@ -53,10 +53,13 @@ public class Report {
     private String topText;
     private String bottomText;
 
+    private String printerName;
+
     /**
      * Constructor
      */
-    public Report() {
+    public Report(){
+        super();
         document = new PDDocument();
         page = new PDPage(PDRectangle.A4);
         document.addPage(page);
@@ -74,6 +77,12 @@ public class Report {
             System.err.println("ERROR!: Failed creating content stream.");
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected Boolean load() {
+        printerName = getProperty(PropertiesEnum.PRINTER_NAME);
+        return printerName != null;
     }
 
     /**

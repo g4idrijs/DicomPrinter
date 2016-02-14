@@ -8,6 +8,7 @@ import java.util.Properties;
 /** Класс настроек для пакета
  * @author Roman Orekhov, tripsin@yandex.ru
  * @since 16-10-01
+ * @deprecated
  */
 public class DicomProperties {
     /** Имя конфигурационного файла по умолчанию */

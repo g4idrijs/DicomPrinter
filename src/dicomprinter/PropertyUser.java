@@ -125,7 +125,7 @@ final class ConfigStore {
  * Абстрактный класс, от которого наследуются классы, использующие настройки.
  *
  * Example:
- *
+ * <pre>
  * class Sample extends PropertyUser {
  *     private String tmp;
  *
@@ -141,7 +141,7 @@ final class ConfigStore {
  *         sample.setProperty(PropertiesEnum.PRINTER_NAME, "priPrinter");
  *         sample.savePropertiesFile();
  *     }
- * }
+ * }</pre>
  */
 public abstract class PropertyUser {
     private static ConfigStore configStore;

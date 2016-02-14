@@ -13,36 +13,41 @@ import java.io.IOException;
 /**
  * Получает DICOM-объект(изображение) и сохраняет его во временную папку. Передает имя полученного файла
  * в конвертер изображений. Используется с УЗИ-сканером Mindray DC-7, с другими аппратами не испытывался.
- * Сервер, слушающий DICOM-порт, запускается в отдельном потоке.
+ * Сервер, слушающий DICOM-порт, запускается в отдельном потоке. Singleton pattern.
  * TODO: Если не хватает прав для биндинга к порту, серверный поток выкидывает BindException, но не завершается.
  * <p>
  * <b>Зависимости</b>: pixelmed, PixelMed™ Java DICOM Toolkit, http://www.pixelmed.com/
  * @author Roman Orekhov, tripsin@yandex.ru
  * @since 2016-04-01
  */
-public class DicomImageReceiver {
+public final class DicomImageReceiver extends PropertyUser {
+
+    private static DicomImageReceiver instance;
+    private String aeTitle;
+    private int dicomPort;
+    private String tmpDir;
 
     /** Статический метод. Запускает диспетчер DICOM-объектов.
-     * @param dicomProperties Объект с настройками.
      * @param converter Объект конвертера изображений.
      * @return объект DicomImageReceiver с запущеным диспетчером. Возвращаемое значение пока не используется.
      */
-    public static DicomImageReceiver Go(DicomProperties dicomProperties, DicomImageConverter converter) {
-        return new DicomImageReceiver(dicomProperties, converter);
+    public static DicomImageReceiver Go(DicomImageConverter converter) {
+        if (instance != null) throw new RuntimeException("DicomImageReceiver: Re-initiation is not allowed");
+        instance = new DicomImageReceiver(converter);
+        return instance;
     }
 
     /** Приватный конструктор
-     * @param dicomProperties Объект с настройками.
      * @param converter Объект конвертера изображений.
      * @see StorageSOPClassSCPDispatcher
      * @see DicomReceivedObjectHandler
      */
-    private DicomImageReceiver(DicomProperties dicomProperties, DicomImageConverter converter){
+    private DicomImageReceiver(DicomImageConverter converter){
+        super();
         try {
             DicomReceivedObjectHandler handler = new DicomReceivedObjectHandler();
             handler.setConverter(converter);
-            Thread DicomListener = new Thread(new StorageSOPClassSCPDispatcher(dicomProperties.getDicomPort(),
-                    dicomProperties.getAeTitle(), new File(dicomProperties.getTmpDir()),
+            Thread DicomListener = new Thread(new StorageSOPClassSCPDispatcher(dicomPort, aeTitle, new File(tmpDir),
                     handler, 0));
             /* Этот код не работает. Исключения перехватывается раньше. Печать стека идет из StorageSOPClassSCP.
             DicomListener.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -58,6 +63,16 @@ public class DicomImageReceiver {
             e.printStackTrace(System.err);
             System.exit(-1);
         }
+    }
+
+    @Override
+    protected Boolean load() {
+        aeTitle = getProperty(PropertiesEnum.AE_TITLE);
+        tmpDir = getProperty(PropertiesEnum.TMP_DIR);
+        String dicomPortString = getProperty(PropertiesEnum.DICOM_PORT);
+        if ((aeTitle == null) || (tmpDir == null) || (dicomPortString == null)) return false;
+        dicomPort = Integer.parseInt(dicomPortString);
+        return true;
     }
 
     /**

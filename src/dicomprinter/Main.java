@@ -28,12 +28,10 @@ public class Main extends Application {
         this.primaryStage.setTitle("Dicom Printer v0.0");
         initMainWindow();
 
-        DicomProperties properties = DicomProperties.loadDefaults();
-
-        DicomImageConverter converter = new DicomImageConverter(this, properties);
+        DicomImageConverter converter = new DicomImageConverter(this);
 
         // Disable then run from Idea on linux (need root)
-        DicomImageReceiver.Go(properties, converter);
+        DicomImageReceiver.Go(converter);
 
         //code for debugging
         /*

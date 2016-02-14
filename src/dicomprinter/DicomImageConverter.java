@@ -12,30 +12,28 @@ import java.io.IOException;
  * @author Roman Orekhov, tripsin@yandex.ru
  * @since 16-10-01
  */
-public class DicomImageConverter {
+public class DicomImageConverter extends PropertyUser {
     /** Формат файла с изображением. Может быть JPEG и PNG */
-    private String IMAGE_TYPE;
+    private String imageType;
     /** Параметр обрезка изображения. Отступ слева в пикселях */
-    private int CROP_X;
+    private int cropX;
     /** Параметр обрезка изображения. Отступ сверху в пикселях */
-    private int CROP_Y;
+    private int cropY;
     /** Параметр обрезка изображения. Ширина в пикселях */
-    private int CROP_WIDTH;
+    private int cropWidth;
     /** Параметр обрезка изображения. Высота в пикселях */
-    private int CROP_HEIGHT;
+    private int cropHeight;
     /** Главный класс приложения */
     private Main mainClass;
 
+    private Boolean needsCropping;
+
     /** Конструктор
-     * @param properties объект с настройками
+     *
      */
-    public DicomImageConverter(Main main, DicomProperties properties) {
+    public DicomImageConverter(Main main) {
+        super();
         this.mainClass = main;
-        IMAGE_TYPE  = properties.getImageType();
-        CROP_X      = properties.getCropX();
-        CROP_Y      = properties.getCropY();
-        CROP_WIDTH  = properties.getCropWidth();
-        CROP_HEIGHT = properties.getCropHeight();
     }
 
     /** Преобразует переданный dcm-файл в соотвествии с настройками (формат JPEG,PNG и обрезка)
@@ -46,9 +44,9 @@ public class DicomImageConverter {
     File convert(String dicomFileName) throws DicomException, IOException {
         //SourceImage from PixelMed
         BufferedImage sourcePicture = new SourceImage(dicomFileName).getBufferedImage();
-        BufferedImage croppedPicture = sourcePicture.getSubimage(CROP_X, CROP_Y, CROP_WIDTH, CROP_HEIGHT);
-        File outputJPGfile = new File(dicomFileName + "." + IMAGE_TYPE.toLowerCase());
-        if (ImageIO.write(croppedPicture, IMAGE_TYPE, outputJPGfile))
+        if (needsCropping) sourcePicture = sourcePicture.getSubimage(cropX, cropY, cropWidth, cropHeight);
+        File outputJPGfile = new File(dicomFileName + "." + imageType.toLowerCase());
+        if (ImageIO.write(sourcePicture, imageType, outputJPGfile))
             System.err.println("Image file created - " + outputJPGfile.getName());
         if (new File(dicomFileName).delete())
             System.err.println("Temporary file deleted.");
@@ -57,5 +55,25 @@ public class DicomImageConverter {
 
         return outputJPGfile;
         //TODO: Обработать DicomException, IOException
+    }
+
+    @Override
+    protected Boolean load() {
+        imageType = getProperty(PropertiesEnum.IMAGE_TYPE);
+        String cropXstring = getProperty(PropertiesEnum.CROP_X);
+        String cropYstring = getProperty(PropertiesEnum.CROP_Y);
+        String cropWstring = getProperty(PropertiesEnum.CROP_WIDTH);
+        String cropHstring = getProperty(PropertiesEnum.CROP_HEIGHT);
+        if (imageType == null) return false;
+        if ((cropXstring == null) || (cropYstring == null) ||
+                (cropWstring == null) || (cropHstring == null)) needsCropping = false;
+        else {
+            cropX = Integer.parseInt(cropXstring);
+            cropY = Integer.parseInt(cropYstring);
+            cropWidth = Integer.parseInt(cropWstring);
+            cropHeight = Integer.parseInt(cropHstring);
+            needsCropping = true;
+        }
+        return true;
     }
 }
