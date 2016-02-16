@@ -1,6 +1,8 @@
 package dicomprinter;
 
 import dicomprinter.imagebox.ImageBox;
+import dicomprinter.propertyuser.PropertiesEnum;
+import dicomprinter.propertyuser.PropertyUser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 /**
  * Create report for DicomPrinter, save it to disk and ptint on printer
  */
-public class Report extends PropertyUser{
+public class Report extends PropertyUser {
     public static final String DEFAULT_REPORT_NAME = "report.pdf";
 
     private static final int TOP_FONT_SIZE = 12;

@@ -1,9 +1,11 @@
 package dicomprinter;
 
+import dicomprinter.configsaver.ConfigSaver;
 import dicomprinter.imagebox.ImageBox;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -11,6 +13,8 @@ import javafx.scene.layout.GridPane;
 
 public class MainWindowController {
 
+    public MenuItem mnuClose;
+    public MenuItem mnuConfig;
     @FXML
     Button printButton;
     @FXML
@@ -53,6 +57,11 @@ public class MainWindowController {
         //TODO: Удалить временные файлы из папки
     }
 
+    @FXML
+    public void goConfigSaver(){
+        new ConfigSaver();
+    }
+
     public void setMainClass(Main mainClass){
         this.mainClass = mainClass;
     }
@@ -64,7 +73,4 @@ public class MainWindowController {
                 }
         );
     }
-
-    @FXML
-    public void initialize(){}
 }

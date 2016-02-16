@@ -2,6 +2,8 @@ package dicomprinter;
 
 import com.pixelmed.dicom.DicomException;
 import com.pixelmed.display.SourceImage;
+import dicomprinter.propertyuser.PropertiesEnum;
+import dicomprinter.propertyuser.PropertyUser;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

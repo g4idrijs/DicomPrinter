@@ -1,23 +1,8 @@
-package dicomprinter;
+package dicomprinter.propertyuser;
 
 import java.io.*;
 import java.util.EnumMap;
 import java.util.Properties;
-
-/**
- * Настройки программы DicomPrinter
- */
-enum PropertiesEnum {
-    AE_TITLE,    // Имя поставщика DICOM-объектов (в настройках УЗИ-сканера)
-    DICOM_PORT,  // Номер порта (установить также в настройках УЗИ-сканера
-    IMAGE_TYPE,  // Формат файла с изображением. Может быть JPEG и PNG
-    CROP_X,      // Параметр обрезка изображения. Отступ слева в пикселях
-    CROP_Y,      // Параметр обрезка изображения. Отступ сверху в пикселях
-    CROP_WIDTH,  // Параметр обрезка изображения. Ширина в пикселях
-    CROP_HEIGHT, // Параметр обрезка изображения. Высота в пикселях
-    TMP_DIR,     // Временная папка для полученных файлов и изображений. Убедись, что есть права на запись в нее
-    PRINTER_NAME // Имя принтера
-}
 
 /**
  * Класс для работы с файлом настроек
@@ -26,7 +11,7 @@ enum PropertiesEnum {
 final class ConfigStore {
     public static final String CONFIG_FILE_NAME = "dicomprinter.config";
     private static ConfigStore instance;
-    private static EnumMap<PropertiesEnum, String> map;
+    public EnumMap<PropertiesEnum, String> map;
 
     private ConfigStore() {
         map = new EnumMap<>(PropertiesEnum.class);
@@ -36,6 +21,7 @@ final class ConfigStore {
         } catch (IOException e) {
             System.err.println("Error loading configuration file.");
             e.printStackTrace();
+            System.exit(-1); //TODO: Создать файл настроек
         }
         for (PropertiesEnum key : PropertiesEnum.values()) {
             map.put(key, prop.getProperty(key.toString()));
@@ -120,54 +106,3 @@ final class ConfigStore {
         map.put(property, value);
     }
 }
-
-/**
- * Абстрактный класс, от которого наследуются классы, использующие настройки.
- *
- * Example:
- * <pre>
- * class Sample extends PropertyUser {
- *     private String tmp;
- *
- *     @Override
- *     protected Boolean load() {
- *         tmp = getProperty(PropertiesEnum.TMP_DIR);
- *         return tmp != null;
- *     }
- *
- *     public static void main(String[] args) {
- *         Sample sample = new Sample();
- *         System.out.println("TMP_DIR = " + sample.tmp);
- *         sample.setProperty(PropertiesEnum.PRINTER_NAME, "priPrinter");
- *         sample.savePropertiesFile();
- *     }
- * }</pre>
- */
-public abstract class PropertyUser {
-    private static ConfigStore configStore;
-
-    public PropertyUser() {
-        configStore = ConfigStore.getInstance();
-        if (!load()) throw new RuntimeException("Failed property loading");
-    }
-
-    /**
-     * Только переопределить и больше не использовать
-     * @return если false, то выкинет RuntimeException
-     */
-    protected abstract Boolean load();
-
-    protected String getProperty(PropertiesEnum property) {
-        return configStore.getProperty(property);
-    }
-
-    protected void setProperty(PropertiesEnum property, String value){
-        configStore.setProperty(property, value);
-    }
-
-    protected void savePropertiesFile(){
-        configStore.save(ConfigStore.CONFIG_FILE_NAME);
-    }
-}
-
-
