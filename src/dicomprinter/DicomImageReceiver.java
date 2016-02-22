@@ -4,8 +4,8 @@ import com.pixelmed.dicom.DicomException;
 import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.network.ReceivedObjectHandler;
 import com.pixelmed.network.StorageSOPClassSCPDispatcher;
-import dicomprinter.propertyuser.PropertiesEnum;
-import dicomprinter.propertyuser.PropertyUser;
+import propertyuser.PropertiesEnum;
+import propertyuser.PropertyUser;
 
 import java.io.File;
 import java.io.IOException;

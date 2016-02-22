@@ -1,4 +1,4 @@
-package dicomprinter.propertyuser;
+package propertyuser;
 
 /**
  * Настройки программы DicomPrinter

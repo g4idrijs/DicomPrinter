@@ -1,4 +1,4 @@
-package dicomprinter.propertyuser;
+package propertyuser;
 
 import java.io.*;
 import java.util.EnumMap;
@@ -11,9 +11,12 @@ import java.util.Properties;
 final class ConfigStore {
     public static final String CONFIG_FILE_NAME = "dicomprinter.config";
     private static ConfigStore instance;
-    public EnumMap<PropertiesEnum, String> map;
+    public final EnumMap<PropertiesEnum, String> map;
 
     private ConfigStore() {
+
+        checkConfigFile();
+
         map = new EnumMap<>(PropertiesEnum.class);
         Properties prop = new Properties();
         try {
@@ -21,21 +24,59 @@ final class ConfigStore {
         } catch (IOException e) {
             System.err.println("Error loading configuration file.");
             e.printStackTrace();
-            System.exit(-1); //TODO: Создать файл настроек
+            System.exit(-1);
         }
         for (PropertiesEnum key : PropertiesEnum.values()) {
             map.put(key, prop.getProperty(key.toString()));
         }
     }
 
-    public static ConfigStore getInstance(){
+    private void checkConfigFile() {
+        File propFile = new File(CONFIG_FILE_NAME);
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            propFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ConfigStore getInstance() {
         if (instance == null) instance = new ConfigStore();
         return instance;
     }
 
     /**
+     * Экранирует обратные слеши в строке. Это надо для записи в текстовый файл.
+     * Copy-pasted from Properties.java and cropped
+     * Escapes slashes with a preceding slash.
+     *
+     * @param theString строка, которую надо изменить перед записью
+     * @return измененная строка с экранированными слешами
+     */
+    private static String saveConvert(String theString) {
+        int len = theString.length();
+        StringBuilder outBuffer = new StringBuilder();
+        for (int x = 0; x < len; x++) {
+            char aChar = theString.charAt(x);
+            if ((aChar > 61) && (aChar < 127)) {
+                if (aChar == '\\') {
+                    outBuffer.append('\\');
+                    outBuffer.append('\\');
+                    continue;
+                }
+                outBuffer.append(aChar);
+                continue;
+            }
+            outBuffer.append(aChar);
+        }
+        return outBuffer.toString();
+    }
+
+    /**
      * Сохраняет файл настроек в формате Property и в его кодироваке,
      * Параметры сохраняются в строгом порядке.
+     *
      * @param fileName Config file name
      */
     public void save(String fileName) {
@@ -63,33 +104,8 @@ final class ConfigStore {
     }
 
     /**
-     * Экранирует обратные слеши в строке. Это надо для записи в текстовый файл.
-     * Copy-pasted from Properties.java and cropped
-     * Escapes slashes with a preceding slash.
-     * @param theString строка, которую надо изменить перед записью
-     * @return измененная строка с экранированными слешами
-     */
-    private static String saveConvert(String theString) {
-        int len = theString.length();
-        StringBuilder outBuffer = new StringBuilder();
-        for (int x = 0; x < len; x++) {
-            char aChar = theString.charAt(x);
-            if ((aChar > 61) && (aChar < 127)) {
-                if (aChar == '\\') {
-                    outBuffer.append('\\');
-                    outBuffer.append('\\');
-                    continue;
-                }
-                outBuffer.append(aChar);
-                continue;
-            }
-            outBuffer.append(aChar);
-        }
-        return outBuffer.toString();
-    }
-
-    /**
      * Получает значение
+     *
      * @param property свойство
      * @return значение свойства
      */
@@ -99,10 +115,11 @@ final class ConfigStore {
 
     /**
      * Устанавливает свойство
+     *
      * @param property свойство
-     * @param value значение свойства
+     * @param value    значение свойства
      */
-    public void setProperty(PropertiesEnum property, String value){
+    public void setProperty(PropertiesEnum property, String value) {
         map.put(property, value);
     }
 }

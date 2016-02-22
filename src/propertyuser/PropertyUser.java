@@ -1,18 +1,16 @@
-package dicomprinter.propertyuser;
+package propertyuser;
 
-import java.io.*;
 import java.util.EnumMap;
-import java.util.Properties;
 
 /**
  * Абстрактный класс, от которого наследуются классы, использующие настройки.
- *
+ * <p>
  * Example:
  * <pre>
  * class Sample extends PropertyUser {
  *     private String tmp;
  *
- *     @Override
+ *     \@Override
  *     protected Boolean load() {
  *         tmp = getProperty(PropertiesEnum.TMP_DIR);
  *         return tmp != null;
@@ -26,20 +24,37 @@ import java.util.Properties;
  *     }
  * }</pre>
  */
+
 public abstract class PropertyUser {
     private static ConfigStore configStore;
 
-    public PropertyUser() {
-        configStore = ConfigStore.getInstance();
-        if (!load()) throw new RuntimeException("Failed property loading");
+    public void startConfigSaver(){
+        new ConfigSaver();
     }
 
-    protected EnumMap<PropertiesEnum, String> configMap(){
+    protected PropertyUser() {
+
+        configStore = ConfigStore.getInstance();
+
+        while (!load()){
+            ConfigErrorDialog dialog = new ConfigErrorDialog("Ошибка при загрузке модуля " +
+                    getClass().getSimpleName());
+            dialog.showAndWait();
+            if (dialog.checkedEdit()){
+                new ConfigSaver();
+            }
+            else {
+                System.exit(-1);
+            }
+        }
+    }
+
+    protected EnumMap<PropertiesEnum, String> configMap() {
         return configStore.map;
     }
 
     /**
-     * Только переопределить и больше не использовать
+     * Здесь проводить инициализация и валидацию параметров настроек.
      * @return если false, то выкинет RuntimeException
      */
     protected abstract Boolean load();
@@ -48,11 +63,11 @@ public abstract class PropertyUser {
         return configStore.getProperty(property);
     }
 
-    protected void setProperty(PropertiesEnum property, String value){
+    protected void setProperty(PropertiesEnum property, String value) {
         configStore.setProperty(property, value);
     }
 
-    protected void savePropertiesFile(){
+    protected void savePropertiesFile() {
         configStore.save(ConfigStore.CONFIG_FILE_NAME);
     }
 }

@@ -1,8 +1,8 @@
 package dicomprinter;
 
 import dicomprinter.imagebox.ImageBox;
-import dicomprinter.propertyuser.PropertiesEnum;
-import dicomprinter.propertyuser.PropertyUser;
+import propertyuser.PropertiesEnum;
+import propertyuser.PropertyUser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -32,8 +32,8 @@ public class Report extends PropertyUser {
     private static final int BOTTOM_FONT_SIZE = 8;
     private static final int CAPTION_FONT_SIZE = 14;
 
-    //private static final String FONT_PATH = "C:\\Windows\\Fonts\\Arial.ttf"; // Windows system font
-    private static final String FONT_PATH = "Arial.ttf"; //Font file in project folder
+    private static final String FONT_PATH = "C:\\Windows\\Fonts\\Arial.ttf"; // Windows system font
+    //private static final String FONT_PATH = "Arial.ttf"; //Font file in project folder
     //private static final String FONT_PATH = "/org/apache/pdfbox/resources/ttf/LiberationSans-Regular.ttf"; //embedded (pdfbox2)
     private static final float IMAGES_IN_ROW = 2f;
     private static final float IMAGES_IN_COLUMN = 3f;
@@ -60,7 +60,7 @@ public class Report extends PropertyUser {
     /**
      * Constructor
      */
-    public Report(){
+    public Report (){
         super();
         document = new PDDocument();
         page = new PDPage(PDRectangle.A4);

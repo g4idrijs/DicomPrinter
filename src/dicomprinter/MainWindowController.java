@@ -1,6 +1,5 @@
 package dicomprinter;
 
-import dicomprinter.configsaver.ConfigSaver;
 import dicomprinter.imagebox.ImageBox;
 import javafx.fxml.FXML;
 
@@ -10,6 +9,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import propertyuser.PropertyUser;
 
 public class MainWindowController {
 
@@ -59,7 +59,12 @@ public class MainWindowController {
 
     @FXML
     public void goConfigSaver(){
-        new ConfigSaver();
+        (new PropertyUser(){
+            @Override
+            protected Boolean load() {
+                return true;
+            }
+        }).startConfigSaver();
     }
 
     public void setMainClass(Main mainClass){
