@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
-
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="317.0" prefWidth="330.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dicomprinter.imagebox.ImageBoxController">
-   <children>
-      <ImageView fx:id="imageView" fitHeight="252.0" fitWidth="320.0" layoutX="5.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-         </image>
-      </ImageView>
-      <TextArea fx:id="textArea" layoutX="5.0" layoutY="262.0" onKeyTyped="#textareaKeyTyped" prefHeight="50.0" prefWidth="264.0" wrapText="true" />
-      <CheckBox fx:id="checkBox" contentDisplay="GRAPHIC_ONLY" layoutX="275.0" layoutY="262.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="33.0" text="CheckBox">
-         <font>
-            <Font size="36.0" />
-         </font>
-      </CheckBox>
-   </children>
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="317.0"
+      prefWidth="330.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <ImageView fx:id="imageView" fitHeight="252.0" fitWidth="320.0" layoutX="5.0" layoutY="5.0" pickOnBounds="true"
+              preserveRatio="true">
+   </ImageView>
+   <TextArea fx:id="textArea" layoutX="5.0" layoutY="262.0" prefHeight="50.0" prefWidth="264.0" wrapText="true"/>
+   <CheckBox fx:id="checkBox" contentDisplay="GRAPHIC_ONLY" layoutX="275.0" layoutY="262.0" mnemonicParsing="false"
+             prefHeight="50.0" prefWidth="33.0" text="CheckBox">
+      <font>
+         <Font size="36.0"/>
+      </font>
+   </CheckBox>
 </Pane>

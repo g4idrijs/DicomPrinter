@@ -1,29 +1,41 @@
 package dicomprinter.imagebox;
 
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 /**
  * Объект панели с компонентами для коногократного добвления в GridPane
  * Все ImageBox добаляют себя в общий список (ArrayList). Доступ к каждому ImageBox надо делать через этот список.
  * Created by 1 on 25.01.2016.
  */
-public class ImageBox {
+public class ImageBox implements Initializable {
     private static final String view = "ImageBox.fxml";
-
-    private dicomprinter.imagebox.ImageBoxController controller;
     private GridPane parentGrid;
     private ArrayList<ImageBox> parentList;
     private String imageFileName;
     private Pane imageBox;
+
+    @FXML
+    ImageView imageView;
+    @FXML
+    TextArea textArea;
+    @FXML
+    CheckBox checkBox;
 
     /**
      *
@@ -36,7 +48,7 @@ public class ImageBox {
     public void setImage(String imageFileName) {
         this.imageFileName = imageFileName;
         try {
-            controller.imageView.setImage(new Image(new FileInputStream(imageFileName)));
+            imageView.setImage(new Image(new FileInputStream(imageFileName)));
         } catch (FileNotFoundException e) {
             System.err.println("ERROR: Image not load form " + imageFileName);
         }
@@ -48,22 +60,22 @@ public class ImageBox {
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(ImageBox.class.getResource(view));
+        loader.setController(this);
         try {
             imageBox = loader.load();
         } catch (IOException e) {
             System.err.println("ERROR: ImageBox.fxml not load.");
             System.exit(-1);
         }
-        controller = loader.getController();
         parentList.add(this); // бокс сам себя добавляет в список
     }
 
     public String caption(){
-        return controller.textArea.getText();
+        return textArea.getText();
     }
 
     public Boolean checked(){
-        return controller.checkBox.isSelected();
+        return checkBox.isSelected();
     }
 
     public void show(double containerWidth){
@@ -81,7 +93,7 @@ public class ImageBox {
     }
 
     public void setSelected(){
-        controller.checkBox.setSelected(true);
+        checkBox.setSelected(true);
     }
 
     /** @deprecated */
@@ -90,5 +102,10 @@ public class ImageBox {
         int column = parentList.indexOf(this)%columnsNumber;
         int row    = parentList.indexOf(this)/columnsNumber;
         Platform.runLater(() -> parentGrid.add(imageBox, column, row));
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        textArea.setOnKeyTyped(event -> checkBox.setSelected(true));
     }
 }
