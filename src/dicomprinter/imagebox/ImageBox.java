@@ -8,6 +8,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
@@ -69,6 +70,21 @@ public class ImageBox implements Initializable {
         }
         parentList.add(this); // бокс сам себя добавляет в список
     }
+
+    public ImageBox(FlowPane panel) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(ImageBox.class.getResource(view));
+        loader.setController(this);
+        try {
+            imageBox = loader.load();
+        } catch (IOException e) {
+            System.err.println("ERROR: ImageBox.fxml not load.");
+            System.exit(-1);
+        }
+        panel.getChildren().add(this.imageBox); // бокс сам себя добавляет в список
+    }
+
+
 
     public String caption(){
         return textArea.getText();
