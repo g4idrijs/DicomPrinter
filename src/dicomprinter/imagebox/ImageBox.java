@@ -81,10 +81,9 @@ public class ImageBox implements Initializable {
             System.err.println("ERROR: ImageBox.fxml not load.");
             System.exit(-1);
         }
-        panel.getChildren().add(this.imageBox); // бокс сам себя добавляет в список
+        //panel.getChildren().add(this.imageBox);
+        Platform.runLater(() -> panel.getChildren().add(this.imageBox));// бокс сам себя добавляет панель
     }
-
-
 
     public String caption(){
         return textArea.getText();
@@ -94,6 +93,7 @@ public class ImageBox implements Initializable {
         return checkBox.isSelected();
     }
 
+    /** @deprecated */
     public void show(double containerWidth){
         int columnsNumber = (int)(containerWidth/imageBox.getPrefWidth());
         int column = parentList.indexOf(this)%columnsNumber;
@@ -101,6 +101,7 @@ public class ImageBox implements Initializable {
         Platform.runLater(() -> parentGrid.add(imageBox, column, row));
     }
 
+    /** @deprecated */
     public void showOnResize(double containerWidth){
         int columnsNumber = (int)(containerWidth/imageBox.getPrefWidth());
         int column = parentList.indexOf(this)%columnsNumber;

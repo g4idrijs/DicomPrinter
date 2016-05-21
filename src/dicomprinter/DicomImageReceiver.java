@@ -9,6 +9,7 @@ import propertyuser.PropertyUser;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Function;
 //import java.net.BindException;
 
 
@@ -29,36 +30,26 @@ public final class DicomImageReceiver extends PropertyUser {
     private int dicomPort;
     private String tmpDir;
 
+    private Function<String, File> converter;
+
     /** Статический метод. Запускает диспетчер DICOM-объектов.
      * @param converter Объект конвертера изображений.
      * @return объект DicomImageReceiver с запущеным диспетчером. Возвращаемое значение пока не используется.
+
      */
-    public static DicomImageReceiver Go(DicomImageConverter converter) {
+
+    public static DicomImageReceiver start(Function<String, File> converter) {
         if (instance != null) throw new RuntimeException("DicomImageReceiver: Re-initiation is not allowed");
         instance = new DicomImageReceiver(converter);
         return instance;
     }
 
-    /** Приватный конструктор
-     * @param converter Объект конвертера изображений.
-     * @see StorageSOPClassSCPDispatcher
-     * @see DicomReceivedObjectHandler
-     */
-    private DicomImageReceiver(DicomImageConverter converter){
-        super();
+    private DicomImageReceiver(Function<String, File> converter) {
         try {
             DicomReceivedObjectHandler handler = new DicomReceivedObjectHandler();
-            handler.setConverter(converter);
+            this.converter = converter;
             Thread DicomListener = new Thread(new StorageSOPClassSCPDispatcher(dicomPort, aeTitle, new File(tmpDir),
                     handler, 0));
-            /* Этот код не работает. Исключения перехватывается раньше. Печать стека идет из StorageSOPClassSCP.
-            DicomListener.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                @Override
-                public void uncaughtException(Thread t, Throwable e) {
-                    System.err.println("!!! Exception from Thread !!!");
-                    System.err.println(e.getLocalizedMessage());
-                }
-            });*/
             DicomListener.start();
         } catch (IOException e) {
             System.err.println("Fail - Server thread not started.");
@@ -84,33 +75,12 @@ public final class DicomImageReceiver extends PropertyUser {
      * @see ReceivedObjectHandler
      */
     private class DicomReceivedObjectHandler extends ReceivedObjectHandler {
-
-        /** Конвертер изображений
-         * @see DicomImageConverter
-         * */
-        private DicomImageConverter converter;
-
-        /** Получает конвертер изображений из внешнего класса
-         * @see DicomImageReceiver
-         * @see DicomImageConverter
-         */
-        void setConverter(DicomImageConverter converter) {
-            this.converter = converter;
-        }
-
-        /** Метод обработчика. Вызывается из потока сервера. Передает имя dcm-файла в конвертер изображений.
-         * @param dicomFileName имя временного dcm-файла.
-         * @param callingAETitle Символьное имя УЗИ-аппарата. Задается в настройках аппарата.
-         * @param transferSyntax Идентификатор синтаксиса.
-         * @see DicomImageConverter#convert(String)
-         */
         public void sendReceivedObjectIndication(String dicomFileName, String transferSyntax, String callingAETitle)
                 throws DicomNetworkException, DicomException, IOException {
             if (dicomFileName != null) {
                 System.err.println("Received: " + dicomFileName + " from " + callingAETitle + " in " + transferSyntax);
-                converter.convert(dicomFileName);
+                converter.apply(dicomFileName);
             }
         }
     }
-
 }
