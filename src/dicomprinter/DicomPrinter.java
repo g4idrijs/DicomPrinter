@@ -29,8 +29,6 @@ public class DicomPrinter implements Initializable {
 
     public Parent form;
 
-    private Thread listener;
-
     //preferences
     private String aeTitle;
     private int dicomPort;
@@ -47,6 +45,8 @@ public class DicomPrinter implements Initializable {
     private int cropHeight;
     /** Главный класс приложения */
     private Boolean needsCropping;
+
+    private StorageSOPClassSCPDispatcher dispatcher;
 
     public DicomPrinter() {
         FXMLLoader loader = new FXMLLoader();
@@ -79,9 +79,7 @@ public class DicomPrinter implements Initializable {
         BufferedImage sourcePicture = null;
         try {
             sourcePicture = new SourceImage(dicomFileName).getBufferedImage(); //SourceImage from PixelMed
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DicomException e) {
+        } catch (IOException | DicomException e) {
             e.printStackTrace();
         }
         if (needsCropping) sourcePicture = sourcePicture.getSubimage(cropX, cropY, cropWidth, cropHeight);
@@ -117,20 +115,21 @@ public class DicomPrinter implements Initializable {
     }
 
     public void stop(){
-        listener.stop();
+        dispatcher.shutdown();
     }
 
     private void startReceiver(){
         try {
-            listener = new Thread(new StorageSOPClassSCPDispatcher(dicomPort,
-                                                        aeTitle,
-                                                        new File(tmpDir),
-                                                        new DicomReceivedObjectHandler(), 0)
-            );
-            listener.start();
+            dispatcher = new StorageSOPClassSCPDispatcher(
+                    dicomPort,
+                    aeTitle,
+                    new File(tmpDir),
+                    new DicomReceivedObjectHandler(), 0);
+            new Thread(dispatcher).start();
+            //TODO Waiting
+            if (!dispatcher.isReady()) throw new IOException();
         } catch (IOException e) {
             System.err.println("ERROR - Server thread not started.");
-            e.printStackTrace(System.err);
             System.exit(-1);
         }
     }
