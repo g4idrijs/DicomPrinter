@@ -81,8 +81,10 @@ public class ImageBox implements Initializable {
             System.err.println("ERROR: ImageBox.fxml not load.");
             System.exit(-1);
         }
-        //panel.getChildren().add(this.imageBox);
-        Platform.runLater(() -> panel.getChildren().add(this.imageBox));// бокс сам себя добавляет панель
+        // бокс сам себя добавляет на панель
+        Platform.runLater(() -> panel.getChildren().add(this.imageBox));
+        //ссылка на ImageBox (владелец компонента) зранится в самом компоненте. Надо в DicomPrinter.createReport
+        this.imageBox.setUserData(this);
     }
 
     public String caption(){

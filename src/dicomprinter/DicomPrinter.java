@@ -7,9 +7,11 @@ import com.pixelmed.network.ReceivedObjectHandler;
 import com.pixelmed.network.StorageSOPClassSCPDispatcher;
 import dicomprinter.imagebox.ImageBox;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.FlowPane;
@@ -19,7 +21,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.text.DateFormat;
+import java.util.*;
 
 
 /**
@@ -53,12 +56,13 @@ public class DicomPrinter implements Initializable {
 
     public DicomPrinter() {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("newmain.fxml"));
+        loader.setLocation(getClass().getResource("dicomprinter.fxml"));
         loader.setController(this);
         try {
             form = loader.load();
         } catch (IOException e) {
             e.printStackTrace();
+            Platform.exit();
         }
         getPreferences();
         startReceiver();
@@ -89,12 +93,12 @@ public class DicomPrinter implements Initializable {
         File outputJPGfile = new File(dicomFileName + "." + imageType.toLowerCase());
         try {
             if (ImageIO.write(sourcePicture, imageType, outputJPGfile))
-                System.err.println("Image file created - " + outputJPGfile.getName());
+                System.err.println("Image file created - " + outputJPGfile.getName()); //DEBUG PRINT
         } catch (IOException e) {
             e.printStackTrace();
         }
         if (new File(dicomFileName).delete())
-            System.err.println("Temporary file deleted.");
+            System.err.println("Temporary file deleted."); //DEBUG PRINT
 
         addImageBox(outputJPGfile.getPath());
 
@@ -111,6 +115,7 @@ public class DicomPrinter implements Initializable {
         public void sendReceivedObjectIndication(String dicomFileName, String transferSyntax, String callingAETitle)
                 throws DicomNetworkException, DicomException, IOException {
             if (dicomFileName != null) {
+                //DEBUG PRINT
                 System.err.println("Received: " + dicomFileName + " from " + callingAETitle + " in " + transferSyntax);
                 convert(dicomFileName);
             }
@@ -132,7 +137,7 @@ public class DicomPrinter implements Initializable {
             FXWait.delayExecution(1000, this::checkDispatcherAlive);
         } catch (IOException e) {
             System.err.println("ERROR - Server thread not started.");
-            System.exit(-1);
+            Platform.exit();
         }
     }
 
@@ -159,5 +164,49 @@ public class DicomPrinter implements Initializable {
         cropWidth = 800;
         cropHeight = 630;
         needsCropping = true;
+    }
+
+    public void createReport(){
+        Collection<ImageBox> boxes = new ArrayList<>(paneDicom.getChildren().size());
+        paneDicom.getChildren().forEach(node -> {
+            ImageBox imageBox = (ImageBox) node.getUserData();
+            if (imageBox.checked()) boxes.add(imageBox);
+        });
+
+        if (boxes.size() == 0) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Важное сообщение");
+            alert.setHeaderText("Не выделены изображения для печати");
+            alert.setContentText("Выделите необходимые изображения и нажмите Print");
+            alert.showAndWait();
+            return;
+        }
+
+        Date currentDate = new Date();
+        Locale local = new Locale("ru","RU");
+        DateFormat df = DateFormat.getDateTimeInstance (DateFormat.DEFAULT,DateFormat.DEFAULT,local);
+
+        Report report = new Report();
+        report.setTopText(topText);
+
+        if (bottomText == null)
+            report.setBottomText(df.format(currentDate));
+        else
+            report.setBottomText(bottomText);
+
+        report.create(boxes);
+        report.print(); //TODO: Выбор принтера
+        report.save(Report.DEFAULT_REPORT_NAME); //TODO: Выбор имени для сохранения
+    }
+
+    private String topText;
+    private String bottomText;
+
+    public void setTopText(String topText) {
+        this.topText = topText;
+    }
+
+    public void setBottomText(String bottomText) {
+        this.bottomText = bottomText;
     }
 }

@@ -21,6 +21,7 @@ import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Create report for DicomPrinter, save it to disk and ptint on printer
@@ -32,9 +33,9 @@ public class Report extends PropertyUser {
     private static final int BOTTOM_FONT_SIZE = 8;
     private static final int CAPTION_FONT_SIZE = 14;
 
-    private static final String FONT_PATH = "C:\\Windows\\Fonts\\Arial.ttf"; // Windows system font
+    //private static final String FONT_PATH = "C:\\Windows\\Fonts\\Arial.ttf"; // Windows system font
     //private static final String FONT_PATH = "Arial.ttf"; //Font file in project folder
-    //private static final String FONT_PATH = "/org/apache/pdfbox/resources/ttf/LiberationSans-Regular.ttf"; //embedded (pdfbox2)
+    private static final String FONT_PATH = "/org/apache/pdfbox/resources/ttf/LiberationSans-Regular.ttf"; //embedded (pdfbox2)
     private static final float IMAGES_IN_ROW = 2f;
     private static final float IMAGES_IN_COLUMN = 3f;
     private static final int   IMAGES_ON_PAGE = (int)(IMAGES_IN_ROW * IMAGES_IN_COLUMN);
@@ -91,7 +92,7 @@ public class Report extends PropertyUser {
      * Create standard report
      * @param list Array of ImageBoxes from imageGrid
      */
-    public void create(ArrayList<ImageBox> list){
+    public void create(Collection<ImageBox> list){
         top();
         bottom();
         int imageCounter = 0;
@@ -301,6 +302,8 @@ public class Report extends PropertyUser {
 
     public static void main(String[] args) {
         Report report = new Report();
+        report.setTopText("Верхний колонтитул");
+        report.setBottomText("Нижний колонтитул");
         report.image("pict1.jpeg", 0,0, "описание 1");
         report.newpage();
         report.image("pict1.jpeg", 2,1, "описание 2");
