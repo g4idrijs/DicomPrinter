@@ -6,10 +6,12 @@ import com.pixelmed.network.DicomNetworkException;
 import com.pixelmed.network.ReceivedObjectHandler;
 import com.pixelmed.network.StorageSOPClassSCPDispatcher;
 import dicomprinter.imagebox.ImageBox;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.FlowPane;
 
 import javax.imageio.ImageIO;
@@ -18,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+
 
 /**
  * Created by 1 on 19.05.2016.
@@ -126,12 +129,23 @@ public class DicomPrinter implements Initializable {
                     new File(tmpDir),
                     new DicomReceivedObjectHandler(), 0);
             new Thread(dispatcher).start();
-            //TODO Waiting
-            if (!dispatcher.isReady()) throw new IOException();
+            FXWait.delayExecution(1000, this::checkDispatcherAlive);
         } catch (IOException e) {
             System.err.println("ERROR - Server thread not started.");
             System.exit(-1);
         }
+    }
+
+    private Void checkDispatcherAlive(){
+        if (!dispatcher.isReady()){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Критическая неисправность");
+            alert.setHeaderText("DICOM-сервер остановлен");
+            alert.setContentText("Вероятная причина: не хватило прав для открытия порта. Остановите для запущенные приложения.");
+            alert.showAndWait();
+            Platform.exit();
+        }
+        return null;
     }
 
     //ЗАГЛУШКА С ДЕФОЛТНЫМИ ЗНАЧЕНИЯМИ
